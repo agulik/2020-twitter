@@ -11,6 +11,7 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
     "http": "^0.0.1-security",
     "http-proxy-middleware": "^1.0.6",
     "lodash.get": "^4.4.2",
@@ -32,11 +33,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "server": "nodemon server/index.js",
+    "server": "nodemon --experimental-modules server/index.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "type": "module",
   "eslintConfig": {
     "extends": [
       "react-app",

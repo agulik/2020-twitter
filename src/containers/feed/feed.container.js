@@ -5,6 +5,7 @@ import socketIOClient from 'socket.io-client';
 import axios from 'axios';
 import get from 'lodash.get';
 
+import { API_URL } from '../../constants';
 import FeedTypes from '../../containers/feed/feed.redux';
 import Card from '../../components/card';
 import Button from '../../components/button';
@@ -27,8 +28,6 @@ const ButtonWrapper = styled.div`
   margin: 0 auto;
 `;
 
-const API_URL = 'http://localhost:5000/api/rules';
-
 function Feed({
   connectToTwitter,
   connectionEstablished,
@@ -47,7 +46,7 @@ function Feed({
     const createRules = async (params) => {
       // first check if we have any twitter stream rules created
       try {
-        const res = await axios.get(API_URL);
+        const res = await axios.get(`${API_URL}/api/rules`);
         if (get(res, ['data', 'body', 'data'])) {
           // we have rules already, set them in our redux store and return early
           res.data.body.data.forEach((item) => {
@@ -64,7 +63,7 @@ function Feed({
           const payload = {
             add: [{ value: param }]
           };
-          const { data } = await axios.post(API_URL, payload);
+          const { data } = await axios.post(`${API_URL}/api/rules`, payload);
           if (data.body.errors) {
             throw new Error(data.body.errors[0].title);
           }
@@ -82,7 +81,7 @@ function Feed({
   // start the tweet stream
   useEffect(() => {
     const streamTweets = () => {
-      const socket = socketIOClient('http://localhost:5000/');
+      const socket = socketIOClient(API_URL);
       connectToTwitter();
       socket.on('connect', () => {
         connectionEstablished();
@@ -122,18 +121,16 @@ function Feed({
   );
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    setRule: () => dispatch(FeedTypes.setRule()),
-    setRuleSuccess: (rule) => dispatch(FeedTypes.setRuleSuccess(rule)),
-    setRuleError: (error) => dispatch(FeedTypes.setRuleError(error)),
-    connectToTwitter: () => dispatch(FeedTypes.connectToTwitter()),
-    connectionEstablished: () => dispatch(FeedTypes.connectionEstablished()),
-    connectionError: () => dispatch(FeedTypes.connectionError()),
-    pushTweet: (tweet) => dispatch(FeedTypes.pushTweet(tweet)),
-    toggleFeedType: () => dispatch(FeedTypes.toggleFeedType())
-  };
-};
+const mapDispatchToProps = (dispatch) => ({
+  setRule: () => dispatch(FeedTypes.setRule()),
+  setRuleSuccess: (rule) => dispatch(FeedTypes.setRuleSuccess(rule)),
+  setRuleError: (error) => dispatch(FeedTypes.setRuleError(error)),
+  connectToTwitter: () => dispatch(FeedTypes.connectToTwitter()),
+  connectionEstablished: () => dispatch(FeedTypes.connectionEstablished()),
+  connectionError: () => dispatch(FeedTypes.connectionError()),
+  pushTweet: (tweet) => dispatch(FeedTypes.pushTweet(tweet)),
+  toggleFeedType: () => dispatch(FeedTypes.toggleFeedType())
+});
 
 const mapStateToProps = (state) => ({
   onDonaldFeed: state.feed.onDonaldFeed,
